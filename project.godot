@@ -8,8 +8,17 @@
 
 config_version=5
 
+[ambientcg]
+
+download_path="res://AmbientCG/Downloads"
+
 [application]
 
 config/name="New Game Project"
+run/main_scene="uid://b7mr1pmkk28kf"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/godot-ndi/demo/addons/ambientcg/plugin.cfg")
