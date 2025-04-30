@@ -14,11 +14,20 @@ download_path="res://AmbientCG/Downloads"
 
 [application]
 
-config/name="New Game Project"
+config/name="Et Tu"
 run/main_scene="uid://b7mr1pmkk28kf"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
 
+[display]
+
+window/size/viewport_width=1920
+window/size/viewport_height=1080
+
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/godot-ndi/demo/addons/ambientcg/plugin.cfg")
+enabled=PackedStringArray("res://addons/ambientcg/plugin.cfg")
+
+[physics]
+
+3d/physics_engine="Jolt Physics"

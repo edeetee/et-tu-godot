@@ -11,7 +11,7 @@ var original_materials = {}
 @export var custom_materials: Array[Material] = []
 
 # Dictionary to match mesh names to material indices
-@export var mesh_name_to_material_index: Dictionary = {}
+@export var mesh_name_to_material_index: Dictionary[String, int] = {}
 
 # Option to apply a single material to all meshes
 @export var global_material: Material:
