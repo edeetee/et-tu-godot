@@ -1,15 +1,21 @@
-[gd_resource type="StandardMaterial3D" load_steps=5 format=3 uid="uid://bjrha8n7tdh46"]
+[gd_resource type="StandardMaterial3D" load_steps=7 format=3 uid="uid://cimeuei5j6cpq"]
 
-[ext_resource type="Texture2D" uid="uid://cc6d1166e8ae9161" path="res://materials/Metal048C_4K-PNG/Metal048C_4K-PNG_Color.png" id="1_color"]
-[ext_resource type="Texture2D" uid="uid://25e20f6a7e42b59c" path="res://materials/Metal048C_4K-PNG/Metal048C_4K-PNG_NormalDX.png" id="2_normal"]
-[ext_resource type="Texture2D" uid="uid://67fd917ae2aafb55" path="res://materials/Metal048C_4K-PNG/Metal048C_4K-PNG_Roughness.png" id="3_roughness"]
-[ext_resource type="Texture2D" uid="uid://44bb2c3573bf84a0" path="res://materials/Metal048C_4K-PNG/Metal048C_4K-PNG_Displacement.png" id="4_displacement"]
+[ext_resource type="Texture2D" uid="uid://4b5sd3rflqea" path="res://materials/Metal048C_4K-PNG/Metal048C_4K-PNG_Color.png" id="1_color"]
+[ext_resource type="Texture2D" uid="uid://cosqf4nvapbfq" path="res://materials/Metal048C_4K-PNG/Metal048C_4K-PNG_NormalDX.png" id="2_normal"]
+[ext_resource type="Texture2D" uid="uid://b8ms7qukyhicb" path="res://materials/Metal048C_4K-PNG/Metal048C_4K-PNG_Roughness.png" id="3_roughness"]
+[ext_resource type="Texture2D" uid="uid://50gyxudt4mwy" path="res://materials/Metal048C_4K-PNG/Metal048C_4K-PNG_Metalness.png" id="3_rxx0k"]
+[ext_resource type="Texture2D" uid="uid://bxvoxf8i5v1p6" path="res://materials/Metal048C_4K-PNG/Metal048C_4K-PNG_Displacement.png" id="4_displacement"]
+[ext_resource type="Material" uid="uid://du0yn02w36vm3" path="res://materials/RockDark_4K-JPG_4k.tres" id="4_dqce5"]
+
 [resource]
+next_pass = ExtResource("4_dqce5")
+transparency = 1
 albedo_texture = ExtResource("1_color")
-normal_enabled = true
-normal_scale = 1.0
-normal_texture = ExtResource("2_normal")
+metallic = 1.0
+metallic_texture = ExtResource("3_rxx0k")
 roughness_texture = ExtResource("3_roughness")
+normal_enabled = true
+normal_texture = ExtResource("2_normal")
 heightmap_enabled = true
 heightmap_scale = 4.0
 heightmap_deep_parallax = true

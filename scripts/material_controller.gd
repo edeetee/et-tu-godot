@@ -195,7 +195,6 @@ func apply_materials():
 	for mesh_name in mesh_name_to_material_index:
 		var material_index = mesh_name_to_material_index[mesh_name]
 
-		print("Applying material for mesh: ", mesh_name, " with index: ", material_index)
 		
 		if material_index < 0 or material_index >= custom_materials.size():
 			printerr("Invalid material index for mesh: ", mesh_name)

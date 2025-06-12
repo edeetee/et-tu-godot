@@ -90,6 +90,7 @@ NORMAL_TEX=$(find_texture "NormalDX")
 ROUGHNESS_TEX=$(find_texture "Roughness")
 AO_TEX=$(find_texture "AmbientOcclusion")
 DISPLACEMENT_TEX=$(find_texture "Displacement")
+METALNESS_TEX=$(find_texture "Metalness")
 
 echo "Found textures:"
 echo "  Color: $COLOR_TEX"
@@ -97,6 +98,7 @@ echo "  Normal: $NORMAL_TEX"
 echo "  Roughness: $ROUGHNESS_TEX"
 echo "  AO: $AO_TEX"
 echo "  Displacement: $DISPLACEMENT_TEX"
+echo "  Metalness: $METALNESS_TEX"
 
 # Count how many textures we found to determine load_steps
 LOAD_STEPS=1
@@ -177,6 +179,20 @@ if [ -n "$DISPLACEMENT_TEX" ]; then
     RESOURCE_PROPS+="heightmap_min_layers = 8\n"
     RESOURCE_PROPS+="heightmap_max_layers = 32\n"
     RESOURCE_PROPS+="heightmap_texture = ExtResource(\"${ID_COUNTER}_displacement\")\n"
+    ((LOAD_STEPS++))
+    ((ID_COUNTER++))
+fi
+
+if [ -n "$METALNESS_TEX" ]; then
+    METALNESS_UID=$(generate_uid)
+    if [[ "$INPUT" == http* ]]; then
+        METALNESS_REL_PATH="res://${METALNESS_TEX#./}"
+    else
+        METALNESS_REL_PATH="res://materials/$(basename "$MATERIAL_DIR")/$(basename "$METALNESS_TEX")"
+    fi
+    EXT_RESOURCES+="[ext_resource type=\"Texture2D\" uid=\"$METALNESS_UID\" path=\"$METALNESS_REL_PATH\" id=\"${ID_COUNTER}_metalness\"]\n"
+    RESOURCE_PROPS+="metallic_texture = ExtResource(\"${ID_COUNTER}_metalness\")\n"
+    RESOURCE_PROPS+="metallic = 1.0\n"
     ((LOAD_STEPS++))
     ((ID_COUNTER++))
 fi
