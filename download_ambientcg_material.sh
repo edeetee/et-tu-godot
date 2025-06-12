@@ -1,48 +1,77 @@
 #!/bin/bash
 
-# AmbientCG Material Downloader for Godot
-# Usage: ./download_ambientcg_material.sh "https://ambientcg.com/get?file=Rock037_4K-PNG.zip"
+# AmbientCG Material Creator for Godot
+# Usage: 
+#   Download from URL: ./download_ambientcg_material.sh "https://ambientcg.com/get?file=Rock037_4K-PNG.zip"
+#   Create from existing folder: ./download_ambientcg_material.sh "/path/to/existing/material/folder"
 
 set -e
 
-# Check if URL is provided
+# Check if argument is provided
 if [ $# -eq 0 ]; then
-    echo "Usage: $0 <ambientcg_download_url>"
-    echo "Example: $0 'https://ambientcg.com/get?file=Rock037_4K-PNG.zip'"
+    echo "Usage: $0 <ambientcg_download_url_or_folder_path>"
+    echo "Examples:"
+    echo "  Download from URL: $0 'https://ambientcg.com/get?file=Rock037_4K-PNG.zip'"
+    echo "  Use existing folder: $0 'materials/Rock037_4K-PNG'"
+    echo "  Use existing folder: $0 '/absolute/path/to/material/folder'"
     exit 1
 fi
 
-URL="$1"
+INPUT="$1"
 MATERIALS_DIR="materials"
 
-# Extract filename from URL
-ZIP_FILENAME=$(echo "$URL" | sed -n 's/.*file=\([^&]*\).*/\1/p')
-if [ -z "$ZIP_FILENAME" ]; then
-    echo "Error: Could not extract filename from URL"
-    exit 1
+# Determine if input is URL or folder path
+if [[ "$INPUT" == http* ]]; then
+    # Handle URL download
+    echo "Processing URL download..."
+    
+    # Extract filename from URL
+    ZIP_FILENAME=$(echo "$INPUT" | sed -n 's/.*file=\([^&]*\).*/\1/p')
+    if [ -z "$ZIP_FILENAME" ]; then
+        echo "Error: Could not extract filename from URL"
+        exit 1
+    fi
+
+    # Extract material name (remove file extension)
+    MATERIAL_NAME=$(echo "$ZIP_FILENAME" | sed 's/\.[^.]*$//')
+    MATERIAL_DIR="$MATERIALS_DIR/$MATERIAL_NAME"
+
+    echo "Downloading material: $MATERIAL_NAME"
+    echo "Target directory: $MATERIAL_DIR"
+
+    # Create materials directory if it doesn't exist
+    mkdir -p "$MATERIALS_DIR"
+
+    # Download the zip file
+    echo "Downloading $ZIP_FILENAME..."
+    curl -L -o "/tmp/$ZIP_FILENAME" "$INPUT"
+
+    # Extract to materials directory
+    echo "Extracting to $MATERIAL_DIR..."
+    mkdir -p "$MATERIAL_DIR"
+    unzip -o "/tmp/$ZIP_FILENAME" -d "$MATERIAL_DIR"
+
+    # Clean up downloaded zip
+    rm "/tmp/$ZIP_FILENAME"
+else
+    # Handle existing folder
+    echo "Processing existing folder..."
+    
+    # Check if the folder exists
+    if [ ! -d "$INPUT" ]; then
+        echo "Error: Folder '$INPUT' does not exist"
+        exit 1
+    fi
+    
+    # Convert to absolute path
+    MATERIAL_DIR=$(cd "$INPUT" && pwd)
+    
+    # Extract material name from folder name
+    MATERIAL_NAME=$(basename "$MATERIAL_DIR")
+    
+    echo "Using existing material folder: $MATERIAL_NAME"
+    echo "Source directory: $MATERIAL_DIR"
 fi
-
-# Extract material name (remove file extension)
-MATERIAL_NAME=$(echo "$ZIP_FILENAME" | sed 's/\.[^.]*$//')
-MATERIAL_DIR="$MATERIALS_DIR/$MATERIAL_NAME"
-
-echo "Downloading material: $MATERIAL_NAME"
-echo "Target directory: $MATERIAL_DIR"
-
-# Create materials directory if it doesn't exist
-mkdir -p "$MATERIALS_DIR"
-
-# Download the zip file
-echo "Downloading $ZIP_FILENAME..."
-curl -L -o "/tmp/$ZIP_FILENAME" "$URL"
-
-# Extract to materials directory
-echo "Extracting to $MATERIAL_DIR..."
-mkdir -p "$MATERIAL_DIR"
-unzip -o "/tmp/$ZIP_FILENAME" -d "$MATERIAL_DIR"
-
-# Clean up downloaded zip
-rm "/tmp/$ZIP_FILENAME"
 
 # Function to generate a random UID for Godot resources
 generate_uid() {
@@ -79,7 +108,12 @@ ID_COUNTER=1
 
 if [ -n "$COLOR_TEX" ]; then
     COLOR_UID=$(generate_uid)
-    COLOR_REL_PATH="res://${COLOR_TEX#./}"
+    # Convert absolute path to relative path for Godot
+    if [[ "$INPUT" == http* ]]; then
+        COLOR_REL_PATH="res://${COLOR_TEX#./}"
+    else
+        COLOR_REL_PATH="res://materials/$(basename "$MATERIAL_DIR")/$(basename "$COLOR_TEX")"
+    fi
     EXT_RESOURCES+="[ext_resource type=\"Texture2D\" uid=\"$COLOR_UID\" path=\"$COLOR_REL_PATH\" id=\"${ID_COUNTER}_color\"]\n"
     RESOURCE_PROPS+="albedo_texture = ExtResource(\"${ID_COUNTER}_color\")\n"
     ((LOAD_STEPS++))
@@ -88,7 +122,11 @@ fi
 
 if [ -n "$NORMAL_TEX" ]; then
     NORMAL_UID=$(generate_uid)
-    NORMAL_REL_PATH="res://${NORMAL_TEX#./}"
+    if [[ "$INPUT" == http* ]]; then
+        NORMAL_REL_PATH="res://${NORMAL_TEX#./}"
+    else
+        NORMAL_REL_PATH="res://materials/$(basename "$MATERIAL_DIR")/$(basename "$NORMAL_TEX")"
+    fi
     EXT_RESOURCES+="[ext_resource type=\"Texture2D\" uid=\"$NORMAL_UID\" path=\"$NORMAL_REL_PATH\" id=\"${ID_COUNTER}_normal\"]\n"
     RESOURCE_PROPS+="normal_enabled = true\n"
     RESOURCE_PROPS+="normal_scale = 1.0\n"
@@ -99,7 +137,11 @@ fi
 
 if [ -n "$ROUGHNESS_TEX" ]; then
     ROUGHNESS_UID=$(generate_uid)
-    ROUGHNESS_REL_PATH="res://${ROUGHNESS_TEX#./}"
+    if [[ "$INPUT" == http* ]]; then
+        ROUGHNESS_REL_PATH="res://${ROUGHNESS_TEX#./}"
+    else
+        ROUGHNESS_REL_PATH="res://materials/$(basename "$MATERIAL_DIR")/$(basename "$ROUGHNESS_TEX")"
+    fi
     EXT_RESOURCES+="[ext_resource type=\"Texture2D\" uid=\"$ROUGHNESS_UID\" path=\"$ROUGHNESS_REL_PATH\" id=\"${ID_COUNTER}_roughness\"]\n"
     RESOURCE_PROPS+="roughness_texture = ExtResource(\"${ID_COUNTER}_roughness\")\n"
     ((LOAD_STEPS++))
@@ -108,7 +150,11 @@ fi
 
 if [ -n "$AO_TEX" ]; then
     AO_UID=$(generate_uid)
-    AO_REL_PATH="res://${AO_TEX#./}"
+    if [[ "$INPUT" == http* ]]; then
+        AO_REL_PATH="res://${AO_TEX#./}"
+    else
+        AO_REL_PATH="res://materials/$(basename "$MATERIAL_DIR")/$(basename "$AO_TEX")"
+    fi
     EXT_RESOURCES+="[ext_resource type=\"Texture2D\" uid=\"$AO_UID\" path=\"$AO_REL_PATH\" id=\"${ID_COUNTER}_ao\"]\n"
     RESOURCE_PROPS+="ao_enabled = true\n"
     RESOURCE_PROPS+="ao_light_affect = 1.0\n"
@@ -119,7 +165,11 @@ fi
 
 if [ -n "$DISPLACEMENT_TEX" ]; then
     DISPLACEMENT_UID=$(generate_uid)
-    DISPLACEMENT_REL_PATH="res://${DISPLACEMENT_TEX#./}"
+    if [[ "$INPUT" == http* ]]; then
+        DISPLACEMENT_REL_PATH="res://${DISPLACEMENT_TEX#./}"
+    else
+        DISPLACEMENT_REL_PATH="res://materials/$(basename "$MATERIAL_DIR")/$(basename "$DISPLACEMENT_TEX")"
+    fi
     EXT_RESOURCES+="[ext_resource type=\"Texture2D\" uid=\"$DISPLACEMENT_UID\" path=\"$DISPLACEMENT_REL_PATH\" id=\"${ID_COUNTER}_displacement\"]\n"
     RESOURCE_PROPS+="heightmap_enabled = true\n"
     RESOURCE_PROPS+="heightmap_scale = 4.0\n"
@@ -144,7 +194,13 @@ else
     TRES_FILENAME="${MATERIAL_NAME}.tres"
 fi
 
-TRES_PATH="$MATERIALS_DIR/$TRES_FILENAME"
+# For existing folders, create the .tres file in the materials directory
+if [[ "$INPUT" == http* ]]; then
+    TRES_PATH="$MATERIALS_DIR/$TRES_FILENAME"
+else
+    # For existing folders, put the .tres file in the materials directory with relative path
+    TRES_PATH="$MATERIALS_DIR/$TRES_FILENAME"
+fi
 
 # Generate the .tres file
 echo "Creating $TRES_PATH..."
@@ -161,8 +217,13 @@ EOF
 
 echo "Material created successfully!"
 echo "Files:"
-echo "  Material folder: $MATERIAL_DIR"
-echo "  Tres file: $TRES_PATH"
+if [[ "$INPUT" == http* ]]; then
+    echo "  Material folder: $MATERIAL_DIR"
+    echo "  Tres file: $TRES_PATH"
+else
+    echo "  Source folder: $MATERIAL_DIR"
+    echo "  Tres file: $TRES_PATH"
+fi
 echo ""
 echo "You may need to refresh the Godot project to see the new material."
 echo "The material can be applied using the material_controller.gd script in your project."

@@ -8,10 +8,16 @@ var mesh_instances = []
 var original_materials = {}
 
 # Export an array of custom materials you can set in the Inspector
-@export var custom_materials: Array[Material] = []
+@export var custom_materials: Array[Material] = []:
+	set(value):
+		custom_materials = value
+		apply_materials()
 
 # Dictionary to match mesh names to material indices
-@export var mesh_name_to_material_index: Dictionary[String, int] = {}
+@export var mesh_name_to_material_index: Dictionary[String, int] = {}:
+	set(value):
+		mesh_name_to_material_index = value
+		apply_materials()
 
 # Option to apply a single material to all meshes
 @export var global_material: Material:
@@ -88,10 +94,10 @@ func initialize():
 	
 	# Print the names of all found mesh instances for debugging
 	print("Found ", mesh_instances.size(), " mesh instances:")
-	for i in range(mesh_instances.size()):
-		var mesh = mesh_instances[i]
-		if is_instance_valid(mesh):
-			print(i, ": ", mesh.name)
+	# for i in range(mesh_instances.size()):
+	# 	var mesh = mesh_instances[i]
+	# 	if is_instance_valid(mesh):
+	# 		print(i, ": ", mesh.name)
 	
 	# Save original materials on initialization
 	save_original_materials()
@@ -168,7 +174,7 @@ func apply_materials():
 	# If global material option is enabled, apply it to all meshes
 	if use_global_material and global_material:
 		apply_global_material()
-		return
+		# return
 		
 	if custom_materials.size() == 0:
 		if Engine.is_editor_hint():
@@ -176,21 +182,36 @@ func apply_materials():
 		else:
 			printerr("No custom materials defined!")
 		return
+
+	if mesh_name_to_material_index.size() == 0:
+		if Engine.is_editor_hint():
+			print("No mesh name to material index mapping defined.")
+		else:
+			printerr("No mesh name to material index mapping defined!")
+		return
 	
 	for mesh_name in mesh_name_to_material_index:
 		var material_index = mesh_name_to_material_index[mesh_name]
+
+		print("Applying material for mesh: ", mesh_name, " with index: ", material_index)
 		
 		if material_index < 0 or material_index >= custom_materials.size():
 			printerr("Invalid material index for mesh: ", mesh_name)
 			continue
 		
 		var target_material = custom_materials[material_index]
+
+		var mesh_found = false
 		
 		# Find all meshes with this name
 		for mesh in mesh_instances:
 			if is_instance_valid(mesh) and mesh.name == mesh_name:
 				print("Applying material to: ", mesh.name)
 				mesh.material_override = target_material
+				mesh_found = true
+		
+		if not mesh_found:
+			printerr("No mesh found with name: ", mesh_name)
 
 # Apply the global material to all mesh instances
 func apply_global_material():
