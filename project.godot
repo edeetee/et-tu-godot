@@ -31,3 +31,7 @@ enabled=PackedStringArray("res://addons/ambientcg/plugin.cfg")
 [physics]
 
 3d/physics_engine="Jolt Physics"
+
+[rendering]
+
+environment/volumetric_fog/volume_size=512
