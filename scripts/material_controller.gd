@@ -11,6 +11,8 @@ var original_materials = {}
 @export var custom_materials: Array[Material] = []:
 	set(value):
 		custom_materials = value
+		if custom_materials.size() > 0:
+			global_material = custom_materials[0] # Default to first material if available
 		apply_materials()
 
 # Dictionary to match mesh names to material indices
@@ -20,7 +22,7 @@ var original_materials = {}
 		apply_materials()
 
 # Option to apply a single material to all meshes
-@export var global_material: Material:
+var global_material: Material:
 	set(value):
 		global_material = value
 		if use_global_material and is_inside_tree():

@@ -1,0 +1,23 @@
+[gd_resource type="StandardMaterial3D" load_steps=6 format=3 uid="uid://dntmt0mfsoect"]
+
+[ext_resource type="Texture2D" uid="uid://dq1t0g41mty5x" path="res://materials/Tiles129B_4K-PNG/Tiles129B_4K-PNG_Color.png" id="1_color"]
+[ext_resource type="Texture2D" uid="uid://gio6ntuksnm4" path="res://materials/Tiles129B_4K-PNG/Tiles129B_4K-PNG_NormalDX.png" id="2_normal"]
+[ext_resource type="Texture2D" uid="uid://b4y8e08s8760x" path="res://materials/Tiles129B_4K-PNG/Tiles129B_4K-PNG_Roughness.png" id="3_roughness"]
+[ext_resource type="Texture2D" uid="uid://cfwxtsmb4ydrj" path="res://materials/Tiles129B_4K-PNG/Tiles129B_4K-PNG_AmbientOcclusion.png" id="4_ao"]
+[ext_resource type="Texture2D" uid="uid://rfdrs38tr4os" path="res://materials/Tiles129B_4K-PNG/Tiles129B_4K-PNG_Displacement.png" id="5_displacement"]
+
+[resource]
+albedo_texture = ExtResource("1_color")
+roughness_texture = ExtResource("3_roughness")
+normal_enabled = true
+normal_texture = ExtResource("2_normal")
+ao_enabled = true
+ao_light_affect = 1.0
+ao_texture = ExtResource("4_ao")
+heightmap_enabled = true
+heightmap_scale = 4.0
+heightmap_deep_parallax = true
+heightmap_min_layers = 8
+heightmap_max_layers = 32
+heightmap_texture = ExtResource("5_displacement")
+uv1_scale = Vector3(5, 4, 5)
